@@ -2,44 +2,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def VectorInt2d(f, fx, fy, fxy, x0, xf, y0, yf, N):
+def VectorInt2D(fgrid, xp, yp):
 
-    """Implements a bicubic interpolation method for a two dimensional grid of size NxN unit squares with xf,yf and
-    x0,y0 being the largest and smallest values respectively. The function f must be smooth and the partial derivatives
-    fx, fy and fxy must be known """
+    """Interpolates between values on a  2D grid, where the values of the function are known at the vertices on the 
+    grid. Approximates the function at a position (xp,yp) where the value of the function is unknown. 
+    fgrid must be a numpy array"""
 
-    x = np.linspace(x0,xf,N,dtype=int)
+    x1 = int(np.floor(xp))
 
+    x2 = int(np.ceil(xp))
 
-    y = np.linspace(y0,yf,N,dtype=int)
+    y1 = int(np.floor(yp))
 
-    a = np.array([[x],[y]])
+    y2 = int(np.ceil(yp))
+   
+    if xp - x1 == 0:
+        x1 = xp - 1
+        x2 = xp + 1
+    if yp - y1 == 0:
+        y1 = xp - 1
+        y2 = xp + 1
 
-    plist = []
+    fxp1 = ((x2 - xp) / (x2 - x1)) * fgrid[y1,x1] + ((xp - x1) / (x2 - x1)) * fgrid[y1,x2]
 
-    for i in x-1:
-        for j in y-1:
-            FirstArray = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [-3, 3, -2, -1], [2, -2, 1, 1]])
+    fxp2 = ((x2 - xp) / (x2 - x1)) * fgrid[y2,x1] + ((xp - x1) / (x2 - x1)) * fgrid[y2,x2]
 
-            FunctionArray = np.array([[f(x[i], y[j]), f(x[i], y[j+1]), fy(x[i], y[j]), fy(x[i], y[j+1])],
-            [f(x[i+1], y[j]), f(x[i+1], y[j+1]), fy(x[i+1], y[j]), fy(x[i+1], y[j+1])],
-            [fx(x[i], y[j]), fx(x[i], y[j+1]), fxy(x[i], y[j]), fxy(x[i], y[j+1])],
-            [fx(x[i+1], y[j]), fx(x[i+1], y[j+1]), fxy(x[i+1], y[j]), fxy(x[i+1], y[j+1])]])
+    fxpyp = ((y2 - yp) / (y2 - y1)) * fxp1 + ((yp - y1) / (y2 - y1)) * fxp2
 
-            SecondArray = np.array([[1, 0, -3, 2], [0, 0, 3, -2], [0, 1, -2, 1], [0, 0, -1, 1]])
-
-            IntermediateArray = np.matmul(FirstArray, FunctionArray)
-
-            Alpha = np.matmul(IntermediateArray, SecondArray)
-
-            px = np.array([[1, x[i], x[i]**2, x[i]**3]])
-
-            py = np.array([[1], [y[j]], [y[j]**2], [y[j]**3]])
-
-            pint = np.matmul(px, Alpha)
-
-            p = np.matmul(pint, py)
-
-            plist.append(p)
-
-    return plist
+    return fxpyp
