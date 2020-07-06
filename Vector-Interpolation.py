@@ -20,8 +20,8 @@ def VectorInt2D(fgrid, xp, yp):
         x1 = xp - 1
         x2 = xp + 1
     if yp - y1 == 0:
-        y1 = xp - 1
-        y2 = xp + 1
+        y1 = yp - 1
+        y2 = yp + 1
 
     fxp1 = ((x2 - xp) / (x2 - x1)) * fgrid[y1,x1] + ((xp - x1) / (x2 - x1)) * fgrid[y1,x2]
 
